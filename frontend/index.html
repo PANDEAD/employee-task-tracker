@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Task Tracker – Dashboard</title>
+
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #111827;
+        --muted: #9ca3af;
+        --accent: #22c55e;
+        --border: #1f2937;
+        --danger: #f87171;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at 20% 20%, rgba(34, 197, 94, 0.12), transparent 25%),
+          radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.12), transparent 20%),
+          var(--bg);
+        color: #e5e7eb;
+      }
+
+      header {
+        padding: 32px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .auth-wrapper {
+        padding: 0 24px 8px;
+      }
+
+      .auth-card {
+        margin: 0 auto;
+        max-width: 1000px;
+      }
+
+      .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 16px;
+        padding: 0 24px 24px;
+      }
+
+      .column {
+        background: rgba(17, 24, 39, 0.8);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 15px 80px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+      }
+
+      .column h2 {
+        margin-top: 0;
+        font-size: 18px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 12px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #0b1220;
+        color: #e5e7eb;
+        font-size: 14px;
+      }
+
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 150ms ease, box-shadow 150ms ease;
+      }
+
+      button.primary {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #0b1220;
+        width: 100%;
+        margin-top: 16px;
+        box-shadow: 0 10px 40px rgba(34, 197, 94, 0.35);
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .section {
+        margin-bottom: 18px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
+      .stat-card {
+        background: #0b1220;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .stat-card .label {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .stat-card .value {
+        font-size: 24px;
+        font-weight: 700;
+        margin-top: 6px;
+      }
+
+      .list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        background: #0b1220;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: rgba(34, 197, 94, 0.15);
+        color: #bbf7d0;
+        width: fit-content;
+      }
+
+      .pill.pending {
+        background: rgba(234, 179, 8, 0.18);
+        color: #facc15;
+      }
+
+      .pill.in_progress {
+        background: rgba(59, 130, 246, 0.15);
+        color: #bfdbfe;
+      }
+
+      .pill.completed {
+        background: rgba(34, 197, 94, 0.18);
+        color: #bbf7d0;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .badge {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .actions.stack {
+        flex-direction: column;
+      }
+
+      .actions button {
+        flex: 1;
+      }
+
+      .danger {
+        background: rgba(248, 113, 113, 0.15);
+        color: #fecdd3;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="subtitle">Employee task tracker</p>
+      <h1>Team dashboard</h1>
+      <p class="subtitle">Track ownership, due dates, and completion.</p>
+    </header>
+
+    <div class="auth-wrapper">
+      <div class="column auth-card">
+        <div class="flex-between">
+          <div>
+            <h2 style="margin: 0">Signed in</h2>
+            <p class="subtitle" id="authMessage">Loading your profile…</p>
+          </div>
+          <div class="pill" id="authStatus">Checking…</div>
+        </div>
+
+        <div class="actions" style="margin-top: 12px">
+          <button id="logoutButton" class="danger">Sign out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="column">
+        <div class="flex-between">
+          <h2 style="margin: 0">Add / Update Task</h2>
+          <div class="pill" id="roleBadge">Loading…</div>
+        </div>
+        <div class="section">
+          <label for="title">Title</label>
+          <input id="title" type="text" placeholder="Design onboarding flow" />
+
+          <label for="description">Description</label>
+          <textarea id="description" rows="3" placeholder="Add a few details to provide context"></textarea>
+
+          <label for="employee">Assign to</label>
+          <select id="employee"></select>
+
+          <label for="due_date">Due date</label>
+          <input id="due_date" type="date" />
+
+          <label for="status">Status</label>
+          <select id="status">
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+
+          <button id="saveTask" class="primary">Save task</button>
+        </div>
+        <p class="subtitle" id="formMessage"></p>
+      </div>
+
+      <div class="column">
+        <h2>Dashboard</h2>
+        <div class="stats" id="stats"></div>
+
+        <div class="section" style="margin-top: 16px">
+          <div class="flex-between">
+            <h2 style="margin: 0">Tasks</h2>
+            <div class="actions">
+              <select id="filterStatus">
+                <option value="">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In progress</option>
+                <option value="completed">Completed</option>
+              </select>
+              <select id="filterEmployee">
+                <option value="">All owners</option>
+              </select>
+              <button id="applyFilters" class="primary" style="width: auto">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="list" id="taskList"></div>
+      </div>
+    </div>
+
+    <script>
+      const endpoints = {
+        employees: "/employees",
+        tasks: "/tasks",
+        dashboard: "/api/dashboard",
+        me: "/auth/me",
+      };
+
+      const state = {
+        token: localStorage.getItem("auth_token"),
+        user: null,
+        tasks: [],
+      };
+
+      const elements = {
+        employeeSelect: document.getElementById("employee"),
+        filterEmployee: document.getElementById("filterEmployee"),
+        filterStatus: document.getElementById("filterStatus"),
+        title: document.getElementById("title"),
+        description: document.getElementById("description"),
+        dueDate: document.getElementById("due_date"),
+        status: document.getElementById("status"),
+        saveTask: document.getElementById("saveTask"),
+        formMessage: document.getElementById("formMessage"),
+        stats: document.getElementById("stats"),
+        taskList: document.getElementById("taskList"),
+        applyFilters: document.getElementById("applyFilters"),
+        logoutButton: document.getElementById("logoutButton"),
+        authMessage: document.getElementById("authMessage"),
+        authStatus: document.getElementById("authStatus"),
+        roleBadge: document.getElementById("roleBadge"),
+      };
+
+      function setStoredAuth(token, user) {
+        state.token = token;
+        state.user = user;
+        if (token && user) {
+          localStorage.setItem("auth_token", token);
+          localStorage.setItem("auth_user", JSON.stringify(user));
+        } else {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
+      }
+
+      async function fetchJSON(url, options = {}) {
+        const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+        if (state.token) headers.Authorization = `Bearer ${state.token}`;
+        const res = await fetch(url, { ...options, headers });
+        const text = await res.text();
+        let data = {};
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch {}
+        if (!res.ok) {
+          if (res.status === 401) {
+            handleLogout(true);
+            window.location.href = "/";
+          }
+          throw new Error(data.error || res.statusText || "Request failed");
+        }
+        return data;
+      }
+
+      function setFormEnabled(enabled) {
+        [
+          elements.title,
+          elements.description,
+          elements.employeeSelect,
+          elements.dueDate,
+          elements.status,
+          elements.saveTask,
+          elements.applyFilters,
+          elements.filterEmployee,
+          elements.filterStatus,
+        ].forEach((el) => el && (el.disabled = !enabled));
+      }
+
+      function renderEmployees(employees) {
+        elements.employeeSelect.innerHTML = '<option value="">Unassigned</option>';
+        elements.filterEmployee.innerHTML = '<option value="">All owners</option>';
+        employees.forEach((employee) => {
+          const option = document.createElement("option");
+          option.value = employee.id;
+          option.textContent = `${employee.name} (${employee.title})`;
+          elements.employeeSelect.appendChild(option.cloneNode(true));
+          elements.filterEmployee.appendChild(option);
+        });
+
+        if (state.user?.role !== "admin") {
+          elements.employeeSelect.value = state.user?.id || "";
+          elements.employeeSelect.disabled = true;
+          elements.filterEmployee.disabled = true;
+        } else {
+          elements.employeeSelect.disabled = false;
+          elements.filterEmployee.disabled = false;
+        }
+      }
+
+      function renderTasks(tasks) {
+        if (!tasks.length) {
+          elements.taskList.innerHTML = '<p class="muted">No tasks found for this filter.</p>';
+          return;
+        }
+        elements.taskList.innerHTML = tasks
+          .map((task) => {
+            const owner = task.employee ? task.employee.name : "Unassigned";
+            const due = task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date";
+            const isOwner = task.employee?.id === state.user?.id;
+            return `
+              <div class="card">
+                <div class="flex-between">
+                  <div>
+                    <div class="pill ${task.status}">${task.status.replace("_"," ")}</div>
+                    <h3 style="margin: 6px 0">${task.title}</h3>
+                    <p class="muted">${task.description || "No description"}</p>
+                  </div>
+                  <div class="badge">${due}</div>
+                </div>
+                <div class="flex-between">
+                  <span class="muted">${owner}${isOwner ? " • You" : ""}</span>
+                  <div class="actions">
+                    ${
+                      task.status !== "completed"
+                        ? `<button data-id="${task.id}" class="primary" data-action="complete">Mark done</button>`
+                        : ""
+                    }
+                  </div>
+                </div>
+              </div>`;
+          })
+          .join("");
+
+        elements.taskList.querySelectorAll("button[data-action='complete']").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.getAttribute("data-id");
+            await updateTask(id, { status: "completed" });
+            await loadTasks();
+            await loadDashboard();
+          });
+        });
+      }
+
+      function renderStats(summary) {
+        elements.stats.innerHTML = `
+          <div class="stat-card">
+            <div class="label">Total tasks</div>
+            <div class="value">${summary.total_tasks}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Completed</div>
+            <div class="value">${summary.completed_tasks}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Pending</div>
+            <div class="value">${summary.pending_tasks}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Completion rate</div>
+            <div class="value">${summary.completion_rate}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Employees</div>
+            <div class="value">${summary.employee_count}</div>
+          </div>`;
+      }
+
+      async function loadEmployees() {
+        if (!state.user) return;
+        if (state.user.role !== "admin") {
+          renderEmployees([state.user]);
+          return;
+        }
+        const employees = await fetchJSON(endpoints.employees);
+        renderEmployees(employees);
+      }
+
+      async function loadTasks() {
+        const params = new URLSearchParams();
+        const status = elements.filterStatus.value;
+        const employee = elements.filterEmployee.value;
+        if (status) params.append("status", status);
+        if (employee && state.user.role === "admin") params.append("employee_id", employee);
+        const tasks = await fetchJSON(`${endpoints.tasks}?${params.toString()}`);
+        state.tasks = tasks;
+        renderTasks(tasks);
+
+        if (state.user.role !== "admin") {
+          renderStats(buildPersonalSummary(tasks));
+        }
+      }
+
+      function buildPersonalSummary(tasks) {
+        const total = tasks.length;
+        const completed = tasks.filter((t) => t.status === "completed").length;
+        const pending = total - completed;
+        const completion_rate = total ? Math.round((completed / total) * 100) : 0;
+        return {
+          total_tasks: total,
+          completed_tasks: completed,
+          pending_tasks: pending,
+          completion_rate,
+          employee_count: 1,
+        };
+      }
+
+      async function loadDashboard() {
+        if (!state.user || state.user.role !== "admin") return;
+        const summary = await fetchJSON(endpoints.dashboard);
+        renderStats(summary);
+      }
+
+      async function updateTask(id, body) {
+        return fetchJSON(`${endpoints.tasks}/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(body),
+        });
+      }
+
+      async function saveTask() {
+        elements.formMessage.textContent = "";
+        const payload = {
+          title: elements.title.value.trim(),
+          description: elements.description.value.trim(),
+          employee_id: elements.employeeSelect.value || null,
+          status: elements.status.value,
+          due_date: elements.dueDate.value || null,
+        };
+        if (!payload.title) {
+          elements.formMessage.textContent = "Title is required";
+          return;
+        }
+        try {
+          await fetchJSON(endpoints.tasks, {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+          elements.formMessage.textContent = "Task saved";
+          elements.title.value = "";
+          elements.description.value = "";
+          elements.employeeSelect.value = state.user.role === "admin" ? "" : state.user.id;
+          elements.dueDate.value = "";
+          elements.status.value = "pending";
+          await loadTasks();
+          await loadDashboard();
+        } catch (err) {
+          elements.formMessage.textContent = err.message;
+        }
+      }
+
+      function updateAuthUI() {
+        if (!state.user) {
+          elements.authStatus.textContent = "Signed out";
+          elements.authMessage.textContent = "Redirecting to sign-in…";
+          setFormEnabled(false);
+          window.location.href = "/";
+          return;
+        }
+        elements.authStatus.textContent = `${state.user.name} • ${state.user.role}`;
+        elements.authMessage.textContent = "You are signed in.";
+        elements.roleBadge.textContent =
+          state.user.role === "admin" ? "Admin" : "Employee";
+        setFormEnabled(true);
+      }
+
+      function handleLogout(silent = false) {
+        setStoredAuth(null, null);
+        if (!silent) {
+          window.location.href = "/";
+        }
+      }
+
+      async function restoreSession() {
+        const token = localStorage.getItem("auth_token");
+        if (!token) {
+          handleLogout(true);
+          return;
+        }
+        state.token = token;
+        try {
+          const user = await fetchJSON("/auth/me");
+          setStoredAuth(token, user);
+          state.user = user;
+          updateAuthUI();
+          await loadEmployees();
+          await loadTasks();
+          await loadDashboard();
+        } catch {
+          handleLogout(true);
+        }
+      }
+
+      function bindEvents() {
+        elements.saveTask.addEventListener("click", saveTask);
+        elements.applyFilters.addEventListener("click", loadTasks);
+        elements.logoutButton.addEventListener("click", () =>
+          handleLogout(false),
+        );
+      }
+
+      async function init() {
+        bindEvents();
+        await restoreSession();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

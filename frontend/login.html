@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Task Tracker – Sign in</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .card {
+        background: #020617;
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 420px;
+        width: 100%;
+        border: 1px solid #1f2937;
+        box-shadow: 0 18px 80px rgba(0,0,0,0.4);
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+      p {
+        margin: 0 0 14px;
+        color: #9ca3af;
+        font-size: 14px;
+      }
+      label {
+        display: block;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #9ca3af;
+      }
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 1px solid #1f2937;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 14px;
+      }
+      button {
+        margin-top: 18px;
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        background: linear-gradient(135deg,#22c55e,#16a34a);
+        color: #020617;
+      }
+      .muted {
+        margin-top: 12px;
+        font-size: 12px;
+        color: #9ca3af;
+      }
+      .error {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #f97373;
+      }
+      .pill {
+        display: inline-flex;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(34,197,94,0.12);
+        color: #bbf7d0;
+        font-size: 11px;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="pill">Employee Task Tracker</div>
+      <h1>Sign in</h1>
+      <p>Use the sample credentials to explore the dashboard.</p>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="avery@example.com" />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••" />
+
+      <button id="loginBtn">Continue</button>
+
+      <p class="muted">
+        <strong>Admin:</strong> avery@example.com / admin123<br />
+        <strong>Employees:</strong> morgan@example.com / design123<br />
+        <strong></strong> riley@example.com / build123
+      </p>
+
+      <div id="message" class="error"></div>
+    </div>
+
+    <script>
+      const endpoints = {
+        login: "/auth/login",
+        me: "/auth/me",
+      };
+
+      function setStoredAuth(token, user) {
+        if (token && user) {
+          localStorage.setItem("auth_token", token);
+          localStorage.setItem("auth_user", JSON.stringify(user));
+        } else {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
+      }
+
+      async function fetchJSON(url, options = {}) {
+        const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+        if (localStorage.getItem("auth_token")) {
+          headers.Authorization = `Bearer ${localStorage.getItem("auth_token")}`;
+        }
+        const res = await fetch(url, { ...options, headers });
+        const text = await res.text();
+        let data = {};
+        try { data = text ? JSON.parse(text) : {}; } catch (e) {}
+        if (!res.ok) throw new Error(data.error || res.statusText || "Request failed");
+        return data;
+      }
+
+      async function tryRestoreSession() {
+        const token = localStorage.getItem("auth_token");
+        if (!token) return;
+        try {
+          await fetchJSON(endpoints.me);
+          // token is valid, go to dashboard
+          window.location.href = "/dashboard";
+        } catch {
+          setStoredAuth(null, null);
+        }
+      }
+
+      async function handleLogin() {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const messageEl = document.getElementById("message");
+        messageEl.textContent = "";
+
+        if (!email || !password) {
+          messageEl.textContent = "Email and password are required.";
+          return;
+        }
+
+        try {
+          const data = await fetchJSON(endpoints.login, {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+          });
+          setStoredAuth(data.token, data.user);
+          window.location.href = "/dashboard";
+        } catch (err) {
+          messageEl.textContent = err.message;
+        }
+      }
+
+      document.getElementById("loginBtn").addEventListener("click", handleLogin);
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleLogin();
+      });
+
+      tryRestoreSession();
+    </script>
+  </body>
+</html>
