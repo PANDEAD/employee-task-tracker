@@ -43,3 +43,11 @@ All data is stored in SQLite and persists across restarts.
 - Install the dependencies 
 - Run the app
 ---
+
+# **Screenshots**
+
+## **Login Page**
+![Login Screen](assets/image1.jpg)
+
+## **Dashboard**
+![Dashboard](assets/image2.jpg)
